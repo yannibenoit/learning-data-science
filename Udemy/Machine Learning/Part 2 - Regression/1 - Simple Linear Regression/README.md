@@ -1,8 +1,11 @@
 
 # Simple Linear Regression
 
-<img src="img/chart.png" width="600" height="600">
-<img src="img/ordinary_least_square.png" width="600" height="600">
+<img src="img/chart.png" width="600" height="300">
+
+
+
+<img src="img/ordinary_least_square.png" width="600" height="300">
 
 Importing librairies and files
 

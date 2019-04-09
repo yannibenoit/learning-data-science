@@ -453,20 +453,6 @@ y_pred = classifier.predict(X_test)
 print("************* Prediction... ************* \n ")
 print(y_pred[:5])
 
-# Comparing Predictions with Test set
-print("************* Results... ************* \n ")
-
-results = pd.DataFrame({'y_test': y_test, 'y_pred': y_pred})
-l = []
-for index, row in results.iterrows():
-    if row['y_test'] == row['y_pred']:
-        result = 'Yes'
-    else:
-        result = 'No'
-    l.append(result)
-results['is ok ?'] = l
-
-
 # Making the Confusion Matrix
 from sklearn.metrics import confusion_matrix
 cm = confusion_matrix(y_test, y_pred)
@@ -480,8 +466,6 @@ cm
     ************* Prediction... ************* 
      
     [1 1 1 0 0]
-    ************* Results... ************* 
-     
     ************* Confusion Matrix... ************* 
      
 
@@ -523,6 +507,657 @@ F1 Score = 2 * Precision * Recall / (Precision + Recall)
     Maximum Entropy
 
 ```
+
+## Solution
+
+To slove this homework challenge we will first:
+
+Create function to evaluate each model using performance metrics:
+   
+    - Accuracy
+    - Precision (measuring exactness)
+    - Recall (measuring completeness)
+    - F1 Score (compromise between Precision and Recall)
+
+The calculation of these metrics require arguments:
+
+    - True Positives (TP)
+    - True Negatives (TN)
+    - False Positive (FP)
+    - False Negative (FN)
+
+
+
+<img src="img/cm.png" width="400" height="200">
+
+
+
+```python
+# Find aguments and calculate metrics
+def find_TP(y_true, y_pred):
+    return sum((y_true == 1) & (y_pred == 1))
+def find_FN(y_true, y_pred):
+    return sum((y_true == 1) & (y_pred == 0))
+def find_FP(y_true, y_pred):
+    return sum((y_true == 0) & (y_pred == 1))
+def find_TN(y_true, y_pred):
+    return sum((y_true == 0) & (y_pred == 0))
+
+def find_conf_matrix_values(y_true,y_pred):
+    TP = find_TP(y_true,y_pred)
+    FN = find_FN(y_true,y_pred)
+    FP = find_FP(y_true,y_pred)
+    TN = find_TN(y_true,y_pred)
+    return TP,FN,FP,TN
+
+def my_scoring(y_true, y_pred):
+    scoring = {}
+    TP,FN,FP,TN = find_conf_matrix_values(y_true,y_pred) 
+    scoring['accuracy'] = (TP + TN) / (TP + TN + FP + FN)
+    scoring['precision'] = TP / (TP + FP)
+    scoring['recall'] =  TP / (TP + FN)
+    scoring['F1_score'] = 2 * scoring['precision'] * scoring['recall']/ (scoring['precision'] + scoring['recall'])   
+    return scoring
+```
+
+
+```python
+results =[]
+## Calculating metrics
+print("************* Scoring ... ************* \n ")
+
+scoring = my_scoring(y_test, y_pred)
+scoring.update({'model': 'Naïve Bayes'})
+print(scoring)
+results.append(scoring)
+```
+
+    ************* Scoring ... ************* 
+     
+    {'accuracy': 0.73, 'precision': 0.6842105263157895, 'recall': 0.883495145631068, 'F1_score': 0.7711864406779663, 'model': 'Naïve Bayes'}
+
+
+## Random Forest - Entropy
+
+
+```python
+# Random Forest
+from sklearn.ensemble import RandomForestClassifier
+classifier = RandomForestClassifier(n_estimators = 10, criterion = 'entropy', random_state = 0)
+classifier.fit(X_train, y_train)
+
+# Predicting the Test set results
+y_pred = classifier.predict(X_test)
+print("************* Dataset... ************* \n ")
+print(y_test[:5])
+print("************* Prediction... ************* \n ")
+print(y_pred[:5])
+
+# Making the Confusion Matrix
+from sklearn.metrics import confusion_matrix
+cm = confusion_matrix(y_test, y_pred)
+
+print("************* Confusion Matrix... ************* \n ")
+print(cm)
+
+## Calculating metrics
+print("************* Scoring ... ************* \n ")
+
+scoring = my_scoring(y_test, y_pred)
+scoring.update({'model': 'Random Forest - Entropy'})
+print(scoring)
+results.append(scoring)
+```
+
+    ************* Dataset... ************* 
+     
+    [0 0 0 0 0]
+    ************* Prediction... ************* 
+     
+    [0 0 0 0 0]
+    ************* Confusion Matrix... ************* 
+     
+    [[87 10]
+     [46 57]]
+    ************* Scoring ... ************* 
+     
+    {'accuracy': 0.72, 'precision': 0.8507462686567164, 'recall': 0.5533980582524272, 'F1_score': 0.6705882352941177, 'model': 'Random Forest - Entropy'}
+
+
+## Random Forest - Gini
+
+
+```python
+# Random Forest
+from sklearn.ensemble import RandomForestClassifier
+classifier = RandomForestClassifier(n_estimators = 10, criterion = 'gini', random_state = 0)
+classifier.fit(X_train, y_train)
+
+# Predicting the Test set results
+y_pred = classifier.predict(X_test)
+print("************* Dataset... ************* \n ")
+print(y_test[:5])
+print("************* Prediction... ************* \n ")
+print(y_pred[:5])
+
+# Making the Confusion Matrix
+from sklearn.metrics import confusion_matrix
+cm = confusion_matrix(y_test, y_pred)
+
+print("************* Confusion Matrix... ************* \n ")
+print(cm)
+
+## Calculating metrics
+print("************* Scoring ... ************* \n ")
+
+scoring = my_scoring(y_test, y_pred)
+scoring.update({'model': 'Random Forest - Gini'})
+print(scoring)
+results.append(scoring)
+```
+
+    ************* Dataset... ************* 
+     
+    [0 0 0 0 0]
+    ************* Prediction... ************* 
+     
+    [0 0 1 0 1]
+    ************* Confusion Matrix... ************* 
+     
+    [[82 15]
+     [48 55]]
+    ************* Scoring ... ************* 
+     
+    {'accuracy': 0.685, 'precision': 0.7857142857142857, 'recall': 0.5339805825242718, 'F1_score': 0.6358381502890172, 'model': 'Random Forest - Gini'}
+
+
+## Decision Tree - Entropy
+
+
+```python
+# Decision Tree - Entropy
+from sklearn.tree import DecisionTreeClassifier
+classifier = DecisionTreeClassifier(criterion = 'entropy', random_state = 0)
+classifier.fit(X_train, y_train)
+
+# Predicting the Test set results
+y_pred = classifier.predict(X_test)
+print("************* Prediction... ************* \n ")
+print(y_pred[:5])
+
+# Making the Confusion Matrix
+from sklearn.metrics import confusion_matrix
+cm = confusion_matrix(y_test, y_pred)
+
+print("************* Confusion Matrix... ************* \n ")
+print(cm)
+
+
+## Calculating metrics
+print("************* Scoring ... ************* \n ")
+scoring = my_scoring(y_test, y_pred)
+scoring.update({'model': 'Decision Tree - Entropy'})
+print(scoring)
+results.append(scoring)
+```
+
+    ************* Prediction... ************* 
+     
+    [0 0 1 0 1]
+    ************* Confusion Matrix... ************* 
+     
+    [[74 23]
+     [35 68]]
+    ************* Scoring ... ************* 
+     
+    {'accuracy': 0.71, 'precision': 0.7472527472527473, 'recall': 0.6601941747572816, 'F1_score': 0.7010309278350515, 'model': 'Decision Tree - Entropy'}
+
+
+## Decision Tree - Gini
+
+
+```python
+# Decision Tree - Entropy
+from sklearn.tree import DecisionTreeClassifier
+classifier = DecisionTreeClassifier(criterion = 'gini', random_state = 0)
+classifier.fit(X_train, y_train)
+
+# Predicting the Test set results
+y_pred = classifier.predict(X_test)
+print("************* Prediction... ************* \n ")
+print(y_pred[:5])
+
+# Making the Confusion Matrix
+from sklearn.metrics import confusion_matrix
+cm = confusion_matrix(y_test, y_pred)
+
+print("************* Confusion Matrix... ************* \n ")
+print(cm)
+
+
+## Calculating metrics
+print("************* Scoring ... ************* \n ")
+scoring = my_scoring(y_test, y_pred)
+scoring.update({'model': 'Decision Tree - Gini'})
+print(scoring)
+results.append(scoring)
+```
+
+    ************* Prediction... ************* 
+     
+    [0 0 1 0 1]
+    ************* Confusion Matrix... ************* 
+     
+    [[71 26]
+     [44 59]]
+    ************* Scoring ... ************* 
+     
+    {'accuracy': 0.65, 'precision': 0.6941176470588235, 'recall': 0.5728155339805825, 'F1_score': 0.6276595744680851, 'model': 'Decision Tree - Gini'}
+
+
+## Kernel SVM
+
+
+```python
+# Kernel SVM - Kernel RBF
+from sklearn.svm import SVC
+classifier = SVC(kernel = 'rbf', random_state = 0)
+classifier.fit(X_train, y_train)
+
+# Predicting the Test set results
+y_pred = classifier.predict(X_test)
+print("************* Prediction... ************* \n ")
+print(y_pred[:5])
+
+# Making the Confusion Matrix
+from sklearn.metrics import confusion_matrix
+cm = confusion_matrix(y_test, y_pred)
+
+print("************* Confusion Matrix... ************* \n ")
+print(cm)
+
+## Calculating metrics
+print("************* Scoring ... ************* \n ")
+
+scoring = my_scoring(y_test, y_pred)
+scoring.update({'model': 'Kernel SVM'})
+print(scoring)
+results.append(scoring)
+```
+
+    /usr/local/lib/python3.7/site-packages/sklearn/svm/base.py:196: FutureWarning: The default value of gamma will change from 'auto' to 'scale' in version 0.22 to account better for unscaled features. Set gamma explicitly to 'auto' or 'scale' to avoid this warning.
+      "avoid this warning.", FutureWarning)
+
+
+    ************* Prediction... ************* 
+     
+    [0 0 0 0 0]
+    ************* Confusion Matrix... ************* 
+     
+    [[ 97   0]
+     [103   0]]
+    ************* Scoring ... ************* 
+     
+    {'accuracy': 0.485, 'precision': nan, 'recall': 0.0, 'F1_score': nan, 'model': 'Kernel SVM'}
+
+
+    /usr/local/lib/python3.7/site-packages/ipykernel_launcher.py:22: RuntimeWarning: invalid value encountered in long_scalars
+
+
+## SVM
+
+
+```python
+# SVM
+from sklearn.svm import SVC
+classifier = SVC(kernel = 'linear', random_state = 0)
+classifier.fit(X_train, y_train)
+
+# Predicting the Test set results
+y_pred = classifier.predict(X_test)
+print("************* Prediction... ************* \n ")
+print(y_pred[:5])
+
+# Making the Confusion Matrix
+from sklearn.metrics import confusion_matrix
+cm = confusion_matrix(y_test, y_pred)
+
+print("************* Confusion Matrix... ************* \n ")
+print(cm)
+
+## Calculating metrics
+print("************* Scoring ... ************* \n ")
+
+scoring = my_scoring(y_test, y_pred)
+scoring.update({'model': 'SVM'})
+print(scoring)
+results.append(scoring)
+```
+
+    ************* Prediction... ************* 
+     
+    [0 0 0 0 0]
+    ************* Confusion Matrix... ************* 
+     
+    [[74 23]
+     [33 70]]
+    ************* Scoring ... ************* 
+     
+    {'accuracy': 0.72, 'precision': 0.7526881720430108, 'recall': 0.6796116504854369, 'F1_score': 0.7142857142857143, 'model': 'SVM'}
+
+
+## K - NN
+
+
+```python
+# K-NN
+from sklearn.neighbors import KNeighborsClassifier
+classifier = KNeighborsClassifier(n_neighbors = 5, metric = 'minkowski', p = 2)
+classifier.fit(X_train, y_train)
+
+# Predicting the Test set results
+y_pred = classifier.predict(X_test)
+print("************* Prediction... ************* \n ")
+print(y_pred[:5])
+
+# Making the Confusion Matrix
+from sklearn.metrics import confusion_matrix
+cm = confusion_matrix(y_test, y_pred)
+
+print("************* Confusion Matrix... ************* \n ")
+print(cm)
+
+## Calculating metrics
+print("************* Scoring ... ************* \n ")
+
+scoring = my_scoring(y_test, y_pred)
+scoring.update({'model': 'K-NN'})
+print(scoring)
+results.append(scoring)
+```
+
+    ************* Prediction... ************* 
+     
+    [0 1 1 0 1]
+    ************* Confusion Matrix... ************* 
+     
+    [[74 23]
+     [55 48]]
+    ************* Scoring ... ************* 
+     
+    {'accuracy': 0.61, 'precision': 0.676056338028169, 'recall': 0.46601941747572817, 'F1_score': 0.5517241379310345, 'model': 'K-NN'}
+
+
+## Logistic regression
+
+
+```python
+# Logistic Regression
+
+from sklearn.linear_model import LogisticRegression
+classifier = LogisticRegression(random_state = 0)
+classifier.fit(X_train, y_train)
+
+# Predicting the Test set results
+y_pred = classifier.predict(X_test)
+print("************* Prediction... ************* \n ")
+print(y_pred[:5])
+
+# Making the Confusion Matrix
+from sklearn.metrics import confusion_matrix
+cm = confusion_matrix(y_test, y_pred)
+
+print("************* Confusion Matrix... ************* \n ")
+print(cm)
+
+## Calculating metrics
+print("************* Scoring ... ************* \n ")
+
+scoring = my_scoring(y_test, y_pred)
+scoring.update({'model': 'Logistic Regression'})
+print(scoring)
+results.append(scoring)
+```
+
+    ************* Prediction... ************* 
+     
+    [0 0 0 0 0]
+    ************* Confusion Matrix... ************* 
+     
+    [[76 21]
+     [37 66]]
+    ************* Scoring ... ************* 
+     
+    {'accuracy': 0.71, 'precision': 0.7586206896551724, 'recall': 0.6407766990291263, 'F1_score': 0.6947368421052632, 'model': 'Logistic Regression'}
+
+
+    /usr/local/lib/python3.7/site-packages/sklearn/linear_model/logistic.py:432: FutureWarning: Default solver will be changed to 'lbfgs' in 0.22. Specify a solver to silence this warning.
+      FutureWarning)
+
+
+## Logistic Regression - C5.0
+
+
+```python
+# Logistic Regression - C5.0
+
+from sklearn.linear_model import LogisticRegression
+classifier = LogisticRegression(random_state = 0, C=5.0)
+classifier.fit(X_train, y_train)
+
+# Predicting the Test set results
+y_pred = classifier.predict(X_test)
+print("************* Prediction... ************* \n ")
+print(y_pred[:5])
+
+# Making the Confusion Matrix
+from sklearn.metrics import confusion_matrix
+cm = confusion_matrix(y_test, y_pred)
+
+print("************* Confusion Matrix... ************* \n ")
+print(cm)
+
+## Calculating metrics
+print("************* Scoring ... ************* \n ")
+
+scoring = my_scoring(y_test, y_pred)
+scoring.update({'model': 'Logistic Regression - C5.0'})
+print(scoring)
+results.append(scoring)
+```
+
+    ************* Prediction... ************* 
+     
+    [0 0 0 0 0]
+    ************* Confusion Matrix... ************* 
+     
+    [[74 23]
+     [33 70]]
+    ************* Scoring ... ************* 
+     
+    {'accuracy': 0.72, 'precision': 0.7526881720430108, 'recall': 0.6796116504854369, 'F1_score': 0.7142857142857143, 'model': 'Logistic Regression - C5.0'}
+
+
+    /usr/local/lib/python3.7/site-packages/sklearn/linear_model/logistic.py:432: FutureWarning: Default solver will be changed to 'lbfgs' in 0.22. Specify a solver to silence this warning.
+      FutureWarning)
+
+
+# Logistic Regression - Maximum entropy
+
+
+
+```python
+# Logistic Regression - Maximum entropy
+
+from sklearn.linear_model import LogisticRegression
+classifier = LogisticRegression(random_state = 0, C=1.0, penalty='l2')
+classifier.fit(X_train, y_train)
+
+# Predicting the Test set results
+y_pred = classifier.predict(X_test)
+print("************* Prediction... ************* \n ")
+print(y_pred[:5])
+
+# Making the Confusion Matrix
+from sklearn.metrics import confusion_matrix
+cm = confusion_matrix(y_test, y_pred)
+
+print("************* Confusion Matrix... ************* \n ")
+print(cm)
+
+## Calculating metrics
+print("************* Scoring ... ************* \n ")
+
+scoring = my_scoring(y_test, y_pred)
+scoring.update({'model': 'Logistic Regression - Maximum entropy'})
+print(scoring)
+results.append(scoring)
+```
+
+    ************* Prediction... ************* 
+     
+    [0 0 0 0 0]
+    ************* Confusion Matrix... ************* 
+     
+    [[76 21]
+     [37 66]]
+    ************* Scoring ... ************* 
+     
+    {'accuracy': 0.71, 'precision': 0.7586206896551724, 'recall': 0.6407766990291263, 'F1_score': 0.6947368421052632, 'model': 'Logistic Regression - Maximum entropy'}
+
+
+    /usr/local/lib/python3.7/site-packages/sklearn/linear_model/logistic.py:432: FutureWarning: Default solver will be changed to 'lbfgs' in 0.22. Specify a solver to silence this warning.
+      FutureWarning)
+
+
+
+```python
+result_df = pd.DataFrame(results)
+result_df
+```
+
+
+
+
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>F1_score</th>
+      <th>accuracy</th>
+      <th>model</th>
+      <th>precision</th>
+      <th>recall</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>0.771186</td>
+      <td>0.730</td>
+      <td>Naïve Bayes</td>
+      <td>0.684211</td>
+      <td>0.883495</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>0.670588</td>
+      <td>0.720</td>
+      <td>Random Forest - Entropy</td>
+      <td>0.850746</td>
+      <td>0.553398</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>0.635838</td>
+      <td>0.685</td>
+      <td>Random Forest - Gini</td>
+      <td>0.785714</td>
+      <td>0.533981</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>0.701031</td>
+      <td>0.710</td>
+      <td>Decision Tree - Entropy</td>
+      <td>0.747253</td>
+      <td>0.660194</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>0.627660</td>
+      <td>0.650</td>
+      <td>Decision Tree - Gini</td>
+      <td>0.694118</td>
+      <td>0.572816</td>
+    </tr>
+    <tr>
+      <th>5</th>
+      <td>NaN</td>
+      <td>0.485</td>
+      <td>Kernel SVM</td>
+      <td>NaN</td>
+      <td>0.000000</td>
+    </tr>
+    <tr>
+      <th>6</th>
+      <td>0.714286</td>
+      <td>0.720</td>
+      <td>SVM</td>
+      <td>0.752688</td>
+      <td>0.679612</td>
+    </tr>
+    <tr>
+      <th>7</th>
+      <td>0.551724</td>
+      <td>0.610</td>
+      <td>K-NN</td>
+      <td>0.676056</td>
+      <td>0.466019</td>
+    </tr>
+    <tr>
+      <th>8</th>
+      <td>0.694737</td>
+      <td>0.710</td>
+      <td>Logistic Regression</td>
+      <td>0.758621</td>
+      <td>0.640777</td>
+    </tr>
+    <tr>
+      <th>9</th>
+      <td>0.714286</td>
+      <td>0.720</td>
+      <td>Logistic Regression - C5.0</td>
+      <td>0.752688</td>
+      <td>0.679612</td>
+    </tr>
+    <tr>
+      <th>10</th>
+      <td>0.694737</td>
+      <td>0.710</td>
+      <td>Logistic Regression - Maximum entropy</td>
+      <td>0.758621</td>
+      <td>0.640777</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+
 
 
 ```python

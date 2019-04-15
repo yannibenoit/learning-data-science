@@ -528,7 +528,7 @@ The calculation of these metrics require arguments:
 
 
 
-<img src="img/cm.png" width="400" height="200">
+<img src="img/cm.png" width="400" height="800">
 
 
 
